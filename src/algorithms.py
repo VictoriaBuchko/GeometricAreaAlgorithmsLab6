@@ -4,31 +4,19 @@ from shapely.geometry import Polygon, Point
 
 
 def area_shapely(polygon: Polygon) -> float:
-    """
-    Еталонний метод обчислення площі через бібліотеку Shapely (GEOS).
+    
+    #метод обчислення площі через бібліотеку Shapely (GEOS).
 
-    Args:
-        polygon: Об'єкт полігону Shapely.
-
-    Returns:
-        float: Площа полігону.
-    """
     return polygon.area
 
 
 def area_gauss(polygon: Polygon) -> float:
-    """
-    Обчислення площі полігону методом Гауса (Shoelace / Формула шнурків).
 
-    Формула: S = 0.5 * |sum(x_i * y_{i+1} - x_{i+1} * y_i)|
-    де остання точка n збігається з нульовою 0.
+    #Обчислення площі полігону методом Гауса (Shoelace / Формула шнурків).
 
-    Args:
-        polygon: Об'єкт полігону Shapely.
+    #Формула: S = 0.5 * |sum(x_i * y_{i+1} - x_{i+1} * y_i)|
+    #де остання точка n збігається з нульовою 0.
 
-    Returns:
-        float: Площа полігону.
-    """
     # Отримуємо координати вершин (без повторення першої точки в кінці)
     coords = list(polygon.exterior.coords[:-1])
     n = len(coords)
@@ -45,19 +33,11 @@ def area_gauss(polygon: Polygon) -> float:
 def area_monte_carlo(polygon: Polygon, num_points: int = 10000) -> float:
     """
     Обчислення площі полігону методом Монте-Карло.
-
     Алгоритм:
     1. Визначаємо bounding box полігону.
     2. Генеруємо M випадкових точок всередині прямокутника.
     3. Рахуємо кількість точок K, що потрапили всередину полігону.
     4. S_poly ≈ S_box * (K / M)
-
-    Args:
-        polygon: Об'єкт полігону Shapely.
-        num_points (int): Кількість випадкових точок (M).
-
-    Returns:
-        float: Наближена площа полігону.
     """
     # Bounding box: (minx, miny, maxx, maxy)
     minx, miny, maxx, maxy = polygon.bounds
@@ -78,18 +58,9 @@ def area_monte_carlo(polygon: Polygon, num_points: int = 10000) -> float:
 
 
 def relative_error(estimated: float, reference: float) -> float:
-    """
-    Обчислює відносну похибку у відсотках.
+    #Обчислює відносну похибку у відсотках.
+    #δ = |S_estimated - S_reference| / S_reference * 100%
 
-    δ = |S_estimated - S_reference| / S_reference * 100%
-
-    Args:
-        estimated: Обчислена площа.
-        reference: Еталонна площа (Shapely).
-
-    Returns:
-        float: Відносна похибка у відсотках.
-    """
     if reference == 0:
         return float('inf')
     return abs(estimated - reference) / reference * 100.0

@@ -88,8 +88,6 @@ def visualize_multiple_polygons(polygons: list, titles: list, filename: str = No
     else:
         plt.show()
 
-
-# --- Тестовий запуск ---
 if __name__ == "__main__":
     random.seed(42)
     try:

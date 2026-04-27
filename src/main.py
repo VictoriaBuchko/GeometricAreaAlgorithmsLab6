@@ -1,6 +1,6 @@
 """
-Лабораторна робота: Алгоритмічні та евристичні методи обчислення площі геометричних фігур
-Методи: Shapely (еталон), Гаус (Shoelace), Монте-Карло
+лабораторна робота: алгоритмічні та евристичні методи обчислення площі геометричних фігур
+методи: Shapely (еталон), гаус (Shoelace), монте-Карло
 """
 
 import random
@@ -9,14 +9,13 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 
 from generators import generate_polygon, visualize_multiple_polygons
 from algorithms import area_shapely, area_gauss, area_monte_carlo, relative_error
 
-# ─── Константи ────────────────────────────────────────────────────────────────
+#константи
 SEED = 42
-# Шлях до папки images відносно файлу main.py
+#шлях до папки images відносно файлу main.py
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), '..', 'images')
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
@@ -24,7 +23,7 @@ random.seed(SEED)
 np.random.seed(SEED)
 
 
-# ─── 1. Генерація та візуалізація полігонів ────────────────────────────────────
+#генерація та візуалізація полігонів
 def task1_generate_and_visualize():
     print("\n" + "=" * 60)
     print("ЗАВДАННЯ 1: Генерація та візуалізація полігонів")
@@ -46,7 +45,7 @@ def task1_generate_and_visualize():
     return polygons
 
 
-# ─── 2. Реалізація алгоритмів та перевірка ─────────────────────────────────────
+#реалізація алгоритмів та перевірка
 def task2_algorithms(polygons: list):
     print("\n" + "=" * 60)
     print("ЗАВДАННЯ 2: Порівняння методів обчислення площі")
@@ -67,13 +66,12 @@ def task2_algorithms(polygons: list):
         print(f"   МонтеКарло(M=10000): {s_mc:.6f}  (похибка: {err_mc:.2f}%)")
 
 
-# ─── 3. Дослідження точності Монте-Карло ───────────────────────────────────────
+#дослідження точності монте-Карло
 def task3_monte_carlo_accuracy(polygon_n50):
     print("\n" + "=" * 60)
     print("ЗАВДАННЯ 3: Дослідження точності методу Монте-Карло (N=50)")
     print("=" * 60)
 
-    # Додано більше точок для плавності графіка, як у однокурсника
     m_values = [100, 500, 1000, 5000, 10000, 50000, 100000]
     reference = area_shapely(polygon_n50)
     errors = []
@@ -84,7 +82,7 @@ def task3_monte_carlo_accuracy(polygon_n50):
         errors.append(err)
         print(f"   M={m:>7}: S_MC = {s_mc:.4f}, похибка = {err:.4f}%")
 
-    # Графік
+    #побудова графіка залежності похибки від кількості точок
     fig, ax = plt.subplots(figsize=(9, 5))
     ax.plot(m_values, errors, marker='o', color="#AB412E", linewidth=2, markersize=8)
     ax.set_xscale('log')
@@ -100,7 +98,7 @@ def task3_monte_carlo_accuracy(polygon_n50):
     plt.close()
 
 
-# ─── 4. Бенчмарк продуктивності (ЗМІНЕНО НА ЛОГАРИФМІЧНУ ШКАЛУ) ────────────────
+#бенчмарк продуктивності з логарифмічною шкалою
 def task4_benchmark():
     print("\n" + "=" * 60)
     print("ЗАВДАННЯ 4: Бенчмарк продуктивності (час виконання)")
@@ -108,9 +106,9 @@ def task4_benchmark():
 
     vertex_counts = [10, 50, 100, 1000]
     mc_points = 10000
-    repeats = 20  # Збільшено для точності
+    repeats = 20
 
-    results = [] 
+    results = []
 
     header = f"{'N вершин':>10} | {'Shapely (мс)':>14} | {'Гаус (мс)':>12} | {'М-Карло (мс)':>14}"
     print(header)
@@ -119,48 +117,46 @@ def task4_benchmark():
     for n in vertex_counts:
         poly = generate_polygon(num_points=n, radius=10.0)
 
-        # Shapely
+        #вимірювання часу для Shapely
         t0 = time.perf_counter()
         for _ in range(repeats):
             _ = poly.area
         t_shapely = (time.perf_counter() - t0) / repeats * 1000
 
-        # Гаус
+        #вимірювання часу для методу Гауса
         t0 = time.perf_counter()
         for _ in range(repeats):
             area_gauss(poly)
         t_gauss = (time.perf_counter() - t0) / repeats * 1000
 
-        # Монте-Карло
+        #монте-Карло запускається один раз, бо він значно повільніший
         t0 = time.perf_counter()
         area_monte_carlo(poly, num_points=mc_points)
-        t_mc = (time.perf_counter() - t0) * 1000 # Для МК один раз, бо він довгий
+        t_mc = (time.perf_counter() - t0) * 1000
 
         results.append((n, t_shapely, t_gauss, t_mc))
         print(f"{n:>10} | {t_shapely:>14.6f} | {t_gauss:>12.6f} | {t_mc:>14.4f}")
 
-    # --- Побудова графіка як у однокурсника ---
+    #побудова графіка порівняння продуктивності
     ns = [r[0] for r in results]
     t_sh = [r[1] for r in results]
     t_ga = [r[2] for r in results]
     t_mc = [r[3] for r in results]
 
     plt.figure(figsize=(10, 6))
-    
-    # Використовуємо лінійний графік з маркерами
     plt.plot(ns, t_sh, marker='o', label='Shapely', linewidth=2)
     plt.plot(ns, t_ga, marker='s', label='Метод Гауса', linewidth=2)
     plt.plot(ns, t_mc, marker='^', label=f'Монте-Карло (M={mc_points})', linewidth=2)
 
-    # ЦЕ ГОЛОВНА ЗМІНА: Логарифмічна шкала для осі Y
+    #логарифмічна шкала для осі Y для кращої читабельності
     plt.yscale('log')
-    
+
     plt.xlabel('Кількість вершин', fontsize=12)
     plt.ylabel('Час виконання (мс) - лог. шкала', fontsize=12)
     plt.title('Порівняння продуктивності методів', fontsize=14)
     plt.legend(fontsize=11)
     plt.grid(True, which="both", linestyle='--', alpha=0.5)
-    
+
     plt.tight_layout()
     filename = os.path.join(IMAGES_DIR, 'time_benchmark.png')
     plt.savefig(filename, dpi=150)
@@ -170,21 +166,22 @@ def task4_benchmark():
     return results
 
 
-# ─── ГОЛОВНА ФУНКЦІЯ ────────────────────────────────────────────────────────────
+#головна функція
 def main():
+    os.system('cls' if os.name == 'nt' else 'clear')  #очищення консолі перед запуском
     print("ЛАБОРАТОРНА РОБОТА: Обчислення площі полігонів")
     print("Методи: Shapely, Гаус, Монте-Карло\n")
 
-    # 1. Генерація полігонів
+    #генерація полігонів
     polygons = task1_generate_and_visualize()
-    
-    # 2. Перевірка алгоритмів
+
+    #перевірка алгоритмів
     task2_algorithms(polygons)
 
-    # 3. Точність Монте-Карло (беремо полігон на 50 вершин)
+    #точність монте-Карло (беремо полігон на 50 вершин)
     task3_monte_carlo_accuracy(polygons[1])
 
-    # 4. Бенчмарк продуктивності
+    #бенчмарк продуктивності
     task4_benchmark()
 
     print("\n" + "=" * 60)
