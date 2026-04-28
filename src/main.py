@@ -100,7 +100,7 @@ def task4_benchmark():
     print("=" * 60)
 
     vertex_counts = [10, 50, 100, 1000]
-    mc_points = 10000
+    mc_points = 100000
     repeats = 20
 
     results = []
